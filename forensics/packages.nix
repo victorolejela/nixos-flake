@@ -2,7 +2,7 @@
 
 {
   environment.systemPackages = with pkgs; [
-    # Hashing and verification
+    # Hashing
     hashdeep
     ssdeep
     
@@ -12,8 +12,6 @@
     
     # Filesystem analysis
     sleuthkit
-    testdisk
-    photorec
     
     # Memory forensics
     volatility3
