@@ -17,6 +17,7 @@
 
       modules = [
         ./configuration.nix
+	./forensics/default.nix
 
         home-manager.nixosModules.home-manager
 
