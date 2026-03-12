@@ -99,9 +99,11 @@
   # === LOGGING ===
   # Comprehensive audit trail
   
-  services.journald = {
-    enable = true;
-    extraConfig = ''
+  services.journald.extraConfig = ''
+  Storage=persistent
+  Compress=yes
+  MaxRetentionSec=1year
+
       # Don't lose logs on crash
       Storage=persistent
       
