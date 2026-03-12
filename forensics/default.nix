@@ -23,7 +23,7 @@
   networking.firewall.enable = true;
   networking.firewall.allowPing = false;
   
-  time.timeZone = "UTC";
+  time.timeZone = lib.mkForce "UTC";
   services.timesyncd.enable = true;
   
   services.journald.extraConfig = ''
@@ -45,4 +45,5 @@
     "hash-dir" = "hashdeep -r -l";
     "hash-file" = "sha256deep -l";
   };
+}
 }
