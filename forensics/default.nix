@@ -46,4 +46,3 @@
     "hash-file" = "sha256deep -l";
   };
 }
-}
