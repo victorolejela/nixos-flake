@@ -6,9 +6,8 @@
     hashdeep
     ssdeep
     
-    # Disk imaging
+    # Disk imaging (ddrescue only, dc3dd is broken)
     ddrescue
-    dc3dd
     
     # Filesystem analysis
     sleuthkit
