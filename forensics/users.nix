@@ -1,75 +1,64 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, ... }:
 
 {
-  # === FORENSIC USER CONFIGURATION ===
-  # Principle of Least Privilege: analysts get ONLY what they need
-  
+  # === FORENSICS GROUP ===
+  users.groups.forensics = {};
+
+  # === FORENSICS SYSTEM USER (NO LOGIN) ===
   users.users.forensics = {
-    isNormalUser = true;
-    description = "Digital Forensics Analyst";
-    home = "/home/forensics";
+    isSystemUser = true;
+    isNormalUser = false;
+
+    description = "Forensics Service User";
+
+    # REQUIRED: assign group
+    group = "forensics";
+
+    shell = "/run/current-system/sw/bin/nologin";
+
+    home = "/var/lib/forensics";
     createHome = true;
-    
-    # Groups determine permissions:
-    # - disk: Raw disk access (/dev/sda, etc.) for imaging
-    # - dialout: Serial device access (hardware write blockers)
-    # - wireshark: Network capture without sudo
-    extraGroups = [ "disk" "dialout" "wireshark" "video" ];
-    
-    # Use bash for scripting compatibility
-    shell = pkgs.bash;
-    
-    # No password login - use SSH keys only (more secure)
-    # Set password manually after first boot if needed
-    initialPassword = "changeme-immediately";
-    
-    # Packages available ONLY to forensics user
+
     packages = with pkgs; [
-      # Documentation tools
-      pandoc          # Convert reports to PDF
-      texlive.combined.scheme-small  # LaTeX for reports
-      
-      # Scripting
-      python3         # For automation scripts
-      python3Packages.pandas  # Data analysis
-      
-      # Version control for case files
+      pandoc
+      texlive.combined.scheme-small
+      python3
+      python3Packages.pandas
       git
     ];
   };
-  
-  # === SECURITY SETTINGS ===
-  
-  # Disable sudo for forensics user - prevents privilege escalation
-  # All forensic actions should be possible without root
+
+  # === SUDO RULES ===
   security.sudo.extraRules = [
     {
       users = [ "forensics" ];
       commands = [
-        # ONLY allow specific read-only commands with sudo
         { command = "${pkgs.sleuthkit}/bin/tsk_recover"; options = [ "NOPASSWD" ]; }
         { command = "${pkgs.ddrescue}/bin/ddrescue"; options = [ "NOPASSWD" ]; }
       ];
     }
   ];
-  
-  # === WIRESHARK CONFIGURATION ===
-  # Allow network capture without root (security best practice)
+
+  # === WIRESHARK ===
   programs.wireshark = {
     enable = true;
     package = pkgs.wireshark;
   };
-  
-  # === USB WRITE BLOCKING (Hardware) ===
-  # Configure USB storage to be read-only by default
-  # This prevents accidental modification of evidence drives
-  boot.blacklistedKernelModules = [ "usb-storage" ];  # Disable auto-mount
-  
-  # Custom udev rule for forensic USB access
+
+  users.users.venom.extraGroups = [ "wireshark" ];
+
+  # === DIRECTORY STRUCTURE ===
+  systemd.tmpfiles.rules = [
+    "d /forensics 0750 root root -"
+    "d /forensics/cases 0750 root root -"
+    "d /forensics/evidence 0550 root root -"
+    "d /forensics/templates 0755 root root -"
+    "d /forensics/iso 0755 root root -"
+    "d /forensics/audit 0750 root root -"
+  ];
+
+  # === USB (READ-ONLY) ===
   services.udev.extraRules = ''
-    # Label forensic USB devices as read-only
-    SUBSYSTEM=="block", ATTR{removable}=="1", \
-      ATTR{readonly}="1", \
-      SYMLINK+="forensic-%k"
+    SUBSYSTEM=="block", ATTR{removable}=="1", ATTR{readonly}="1"
   '';
 }

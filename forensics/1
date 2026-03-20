@@ -1,0 +1,40 @@
+{ config, pkgs, lib, ... }:
+
+{
+  environment.systemPackages = with pkgs; [
+    # Hashing and verification
+    hashdeep
+    md5deep
+    sha256deep
+    ssdeep
+    
+    # Disk imaging
+    ddrescue
+    dc3dd
+    ewftools
+    afflib
+    guymager
+    
+    # Filesystem analysis
+    sleuthkit
+    autopsy
+    testdisk
+    photorec
+    bulk_extractor
+    
+    # Memory forensics
+    volatility3
+    
+    # Network forensics
+    wireshark
+    tshark
+    tcpdump
+    
+    # Binary analysis
+    radare2
+    binwalk
+    hexedit
+    strace
+  ];
+}
+    

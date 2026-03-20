@@ -175,6 +175,9 @@
     docker_29
     hyprlock
     hypridle
+    sqlite-interactive
+    nodejs
+    unzip
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
